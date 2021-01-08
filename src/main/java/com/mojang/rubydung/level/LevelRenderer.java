@@ -1,9 +1,17 @@
 package com.mojang.rubydung.level;
 
-public class LevelRenderer {
+import com.mojang.rubydung.HitResult;
+import com.mojang.rubydung.Player;
+import com.mojang.rubydung.phys.AABB;
+
+import static org.lwjgl.opengl.GL11.*;
+
+public class LevelRenderer implements LevelListener {
 
     private static final int CHUNK_SIZE = 8;
 
+    private final Tessellator tessellator;
+    private final Level level;
     private final Chunk[] chunks;
 
     private final int chunkAmountX;
@@ -16,6 +24,11 @@ public class LevelRenderer {
      * @param level The rendered level
      */
     public LevelRenderer(Level level) {
+        level.addListener(this);
+
+        this.tessellator = new Tessellator();
+        this.level = level;
+
         // Calculate amount of chunks of level
         this.chunkAmountX = level.width / CHUNK_SIZE;
         this.chunkAmountY = level.depth / CHUNK_SIZE;
@@ -25,9 +38,9 @@ public class LevelRenderer {
         this.chunks = new Chunk[this.chunkAmountX * this.chunkAmountY * this.chunkAmountZ];
 
         // Fill level with chunks
-        for (int x = 0; x < this.chunkAmountX; ++x) {
-            for (int y = 0; y < this.chunkAmountY; ++y) {
-                for (int z = 0; z < this.chunkAmountZ; ++z) {
+        for (int x = 0; x < this.chunkAmountX; x++) {
+            for (int y = 0; y < this.chunkAmountY; y++) {
+                for (int z = 0; z < this.chunkAmountZ; z++) {
                     // Calculate min bounds for chunk
                     int minChunkX = x * CHUNK_SIZE;
                     int minChunkY = y * CHUNK_SIZE;
@@ -94,9 +107,15 @@ public class LevelRenderer {
         maxY /= CHUNK_SIZE;
         maxZ /= CHUNK_SIZE;
 
-        // Minimum and maximum y
-        minY = Math.max(0, minY);
-        maxY = Math.min(15, maxY);
+        // Minimum limit
+        minX = Math.max(minX, 0);
+        minY = Math.max(minY, 0);
+        minZ = Math.max(minZ, 0);
+
+        // Maximum limit
+        maxX = Math.min(maxX, this.chunkAmountX - 1);
+        maxY = Math.min(maxY, this.chunkAmountY - 1);
+        maxZ = Math.min(maxZ, this.chunkAmountZ - 1);
 
         // Mark all chunks as dirty
         for (int x = minX; x <= maxX; x++) {
@@ -110,5 +129,96 @@ public class LevelRenderer {
                 }
             }
         }
+    }
+
+    /**
+     * Render pick selection face on tile
+     *
+     * @param player The player
+     */
+    public void pick(Player player) {
+        float radius = 3.0F;
+        AABB boundingBox = player.boundingBox.grow(radius, radius, radius);
+
+        int minX = (int) boundingBox.minX;
+        int maxX = (int) (boundingBox.maxX + 1.0f);
+        int minY = (int) boundingBox.minY;
+        int maxY = (int) (boundingBox.maxY + 1.0f);
+        int minZ = (int) boundingBox.minZ;
+        int maxZ = (int) (boundingBox.maxZ + 1.0f);
+
+        glInitNames();
+        for (int x = minX; x < maxX; x++) {
+            // Name value x
+            glPushName(x);
+            for (int y = minY; y < maxY; y++) {
+                // Name value y
+                glPushName(y);
+                for (int z = minZ; z < maxZ; z++) {
+                    // Name value z
+                    glPushName(z);
+
+                    // Check for solid tile
+                    if (this.level.isSolidTile(x, y, z)) {
+
+                        // Name value type
+                        glPushName(0);
+
+                        // Render all faces
+                        for (int face = 0; face < 6; face++) {
+
+                            // Name value face id
+                            glPushName(face);
+
+                            // Render selection face
+                            this.tessellator.init();
+                            Tile.rock.renderFace(this.tessellator, x, y, z, face);
+                            this.tessellator.flush();
+
+                            glPopName();
+                        }
+                        glPopName();
+                    }
+                    glPopName();
+                }
+                glPopName();
+            }
+            glPopName();
+        }
+    }
+
+    /**
+     * Render hit face of the result
+     *
+     * @param hitResult The hit result to render
+     */
+    public void renderHit(HitResult hitResult) {
+        // Setup blending and color
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_CURRENT_BIT);
+        glColor4f(1.0f, 1.0f, 1.0f, (float) Math.sin(System.currentTimeMillis() / 100.0) * 0.2f + 0.4f);
+
+        // Render face
+        this.tessellator.init();
+        Tile.rock.renderFace(this.tessellator, hitResult.x, hitResult.y, hitResult.z, hitResult.face);
+        this.tessellator.flush();
+
+        // Disable blending
+        glDisable(GL_BLEND);
+    }
+
+    @Override
+    public void lightColumnChanged(int x, int z, int minY, int maxY) {
+        setDirty(x - 1, minY - 1, z - 1, x + 1, maxY + 1, z + 1);
+    }
+
+    @Override
+    public void tileChanged(int x, int y, int z) {
+        setDirty(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1);
+    }
+
+    @Override
+    public void allChanged() {
+        setDirty(0, 0, 0, this.level.width, this.level.depth, this.level.height);
     }
 }

@@ -148,4 +148,60 @@ public class Tile {
             }
         }
     }
+
+    /**
+     * Render the single face of a tile
+     *
+     * @param tessellator Tessellator for rendering
+     * @param x Tile position x
+     * @param y Tile position y
+     * @param z Tile position z
+     * @param face Face id (0:Top, 1:Bottom, ...)
+     */
+    public void renderFace(Tessellator tessellator, int x, int y, int z, int face) {
+        float minX = x + 0.0f;
+        float maxX = x + 1.0f;
+        float minY = y + 0.0f;
+        float maxY = y + 1.0f;
+        float minZ = z + 0.0f;
+        float maxZ = z + 1.0f;
+
+        // Render face
+        if (face == 0) {
+            tessellator.vertex(minX, minY, maxZ);
+            tessellator.vertex(minX, minY, minZ);
+            tessellator.vertex(maxX, minY, minZ);
+            tessellator.vertex(maxX, minY, maxZ);
+        }
+        if (face == 1) {
+            tessellator.vertex(maxX, maxY, maxZ);
+            tessellator.vertex(maxX, maxY, minZ);
+            tessellator.vertex(minX, maxY, minZ);
+            tessellator.vertex(minX, maxY, maxZ);
+        }
+        if (face == 2) {
+            tessellator.vertex(minX, maxY, minZ);
+            tessellator.vertex(maxX, maxY, minZ);
+            tessellator.vertex(maxX, minY, minZ);
+            tessellator.vertex(minX, minY, minZ);
+        }
+        if (face == 3) {
+            tessellator.vertex(minX, maxY, maxZ);
+            tessellator.vertex(minX, minY, maxZ);
+            tessellator.vertex(maxX, minY, maxZ);
+            tessellator.vertex(maxX, maxY, maxZ);
+        }
+        if (face == 4) {
+            tessellator.vertex(minX, maxY, maxZ);
+            tessellator.vertex(minX, maxY, minZ);
+            tessellator.vertex(minX, minY, minZ);
+            tessellator.vertex(minX, minY, maxZ);
+        }
+        if (face == 5) {
+            tessellator.vertex(maxX, minY, maxZ);
+            tessellator.vertex(maxX, minY, minZ);
+            tessellator.vertex(maxX, maxY, minZ);
+            tessellator.vertex(maxX, maxY, maxZ);
+        }
+    }
 }

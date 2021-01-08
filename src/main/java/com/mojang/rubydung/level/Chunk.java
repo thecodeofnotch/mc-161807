@@ -93,13 +93,13 @@ public class Chunk {
                 for (int z = this.minZ; z < this.maxZ; ++z) {
                     // Is a tile at this location?
                     if (this.level.isTile(x, y, z)) {
+                        int id = (y != this.level.depth * 2 / 3) ? 1 : 0;
 
-                        // Grass is only on the first 7 tiles if the brightness is on maximum
-                        if (y > this.level.depth - 7 && this.level.getBrightness(x, y, z) == 1.0F) {
-                            // Render the tile
+                        if (id == 0) {
+                            // Render the grass tile
                             Tile.grass.render(TESSELLATOR, this.level, layer, x, y, z);
                         } else {
-                            // Render the tile
+                            // Render the rock tile
                             Tile.rock.render(TESSELLATOR, this.level, layer, x, y, z);
                         }
                     }

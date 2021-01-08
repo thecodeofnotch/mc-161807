@@ -12,9 +12,11 @@ import org.lwjgl.opengl.DisplayMode;
 
 import javax.swing.*;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
+import static org.lwjgl.util.glu.GLU.gluPickMatrix;
 
 public class RubyDung implements Runnable {
 
@@ -25,6 +27,19 @@ public class RubyDung implements Runnable {
     private Player player;
 
     private final FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
+
+    /**
+     * Screen resolution
+     */
+    private final int width = 1024;
+    private final int height = 768;
+
+    /**
+     * Tile picking
+     */
+    private final IntBuffer viewportBuffer = BufferUtils.createIntBuffer(16);
+    private final IntBuffer selectBuffer = BufferUtils.createIntBuffer(2000);
+    private HitResult hitResult;
 
     /**
      * Initialize the game.
@@ -41,11 +56,8 @@ public class RubyDung implements Runnable {
                 255 / 255.0F
         }).flip();
 
-        int width = 1024;
-        int height = 768;
-
         // Set screen size
-        Display.setDisplayMode(new DisplayMode(width, height));
+        Display.setDisplayMode(new DisplayMode(this.width, this.height));
 
         // Setup I/O
         Display.create();
@@ -60,12 +72,6 @@ public class RubyDung implements Runnable {
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glDepthFunc(GL_LEQUAL);
-
-        // Setup camera
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(70, width / (float) height, 0.05F, 1000);
-        glMatrixMode(GL_MODELVIEW);
 
         // Create level and player (Has to be in main thread)
         this.level = new Level(256, 256, 64);
@@ -177,6 +183,116 @@ public class RubyDung implements Runnable {
 
 
     /**
+     * Setup the normal player camera
+     *
+     * @param partialTicks Overflow ticks to calculate smooth a movement
+     */
+    private void setupCamera(float partialTicks) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        // Set camera perspective
+        gluPerspective(70, width / (float) height, 0.05F, 1000);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        // Move camera to middle of level
+        moveCameraToPlayer(partialTicks);
+    }
+
+    /**
+     * Setup tile picking camera
+     *
+     * @param partialTicks Overflow ticks to calculate smooth a movement
+     * @param x            Screen position x
+     * @param y            Screen position y
+     */
+    private void setupPickCamera(float partialTicks, int x, int y) {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        // Reset buffer
+        this.viewportBuffer.clear();
+
+        // Get viewport value
+        glGetInteger(GL_VIEWPORT, this.viewportBuffer);
+
+        // Flip
+        this.viewportBuffer.flip();
+        this.viewportBuffer.limit(16);
+
+        // Set matrix and camera perspective
+        gluPickMatrix(x, y, 5.0f, 5.0f, this.viewportBuffer);
+        gluPerspective(70.0f, this.width / (float) this.height, 0.05f, 1000.0f);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        // Move camera to middle of level
+        moveCameraToPlayer(partialTicks);
+    }
+
+    /**
+     * @param partialTicks Overflow ticks to calculate smooth a movement
+     */
+    private void pick(float partialTicks) {
+        // Reset select buffer
+        this.selectBuffer.clear();
+
+        glSelectBuffer(this.selectBuffer);
+        glRenderMode(GL_SELECT);
+
+        // Setup pick camera
+        this.setupPickCamera(partialTicks, this.width / 2, this.height / 2);
+
+        // Render all possible pick selection faces to the target
+        this.levelRenderer.pick(this.player);
+
+        // Flip buffer
+        this.selectBuffer.flip();
+        this.selectBuffer.limit(this.selectBuffer.capacity());
+
+        long closest = 0L;
+        int[] names = new int[10];
+        int hitNameCount = 0;
+
+        // Get amount of hits
+        int hits = glRenderMode(GL_RENDER);
+        for (int hitIndex = 0; hitIndex < hits; hitIndex++) {
+
+            // Get name count
+            int nameCount = this.selectBuffer.get();
+            long minZ = this.selectBuffer.get();
+            this.selectBuffer.get();
+
+            // Check if the hit is closer to the camera
+            if (minZ < closest || hitIndex == 0) {
+                closest = minZ;
+                hitNameCount = nameCount;
+
+                // Fill names
+                for (int nameIndex = 0; nameIndex < nameCount; nameIndex++) {
+                    names[nameIndex] = this.selectBuffer.get();
+                }
+            } else {
+                // Skip names
+                for (int nameIndex = 0; nameIndex < nameCount; ++nameIndex) {
+                    this.selectBuffer.get();
+                }
+            }
+        }
+
+        // Update hit result
+        if (hitNameCount > 0) {
+            this.hitResult = new HitResult(names[0], names[1], names[2], names[3], names[4]);
+        } else {
+            this.hitResult = null;
+        }
+    }
+
+
+    /**
      * Rendering the game
      *
      * @param partialTicks Overflow ticks to calculate smooth a movement
@@ -189,12 +305,42 @@ public class RubyDung implements Runnable {
         // Rotate the camera using the mouse motion input
         this.player.turn(motionX, motionY);
 
+        // Pick tile
+        pick(partialTicks);
+
+        // Listen for mouse inputs
+        while (Mouse.next()) {
+            // Right click
+            if (Mouse.getEventButton() == 1 && Mouse.getEventButtonState() && this.hitResult != null) {
+                // Destroy the tile
+                this.level.setTile(this.hitResult.x, this.hitResult.y, this.hitResult.z, 0);
+            }
+
+            // Left click
+            if (Mouse.getEventButton() == 0 && Mouse.getEventButtonState() && this.hitResult != null) {
+                // Get target tile position
+                int x = this.hitResult.x;
+                int y = this.hitResult.y;
+                int z = this.hitResult.z;
+
+                // Get position of the tile using face direction
+                if (this.hitResult.face == 0) y--;
+                if (this.hitResult.face == 1) y++;
+                if (this.hitResult.face == 2) z--;
+                if (this.hitResult.face == 3) z++;
+                if (this.hitResult.face == 4) x--;
+                if (this.hitResult.face == 5) x++;
+
+                // Set the tile
+                this.level.setTile(x, y, z, 1);
+            }
+        }
+
         // Clear color and depth buffer and reset the camera
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glLoadIdentity();
 
-        // Move camera to middle of level
-        moveCameraToPlayer(partialTicks);
+        // Setup normal player camera
+        setupCamera(partialTicks);
 
         // Setup fog
         glEnable(GL_FOG);
@@ -215,6 +361,13 @@ public class RubyDung implements Runnable {
 
         // Finish rendering
         glDisable(GL_TEXTURE_2D);
+
+        // Render the actual hit
+        if (this.hitResult != null) {
+            this.levelRenderer.renderHit(this.hitResult);
+        }
+
+        glDisable(GL_FOG);
 
         // Update the display
         Display.update();
