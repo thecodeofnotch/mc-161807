@@ -8,7 +8,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class LevelRenderer implements LevelListener {
 
-    private static final int CHUNK_SIZE = 8;
+    private static final int CHUNK_SIZE = 16;
 
     private final Tessellator tessellator;
     private final Level level;
