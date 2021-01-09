@@ -1,4 +1,4 @@
 {
-	"timestampRelease": 1242245460000,
-	"commitMessage": "add tile placing/breaking, increase chunk size to 16x16x16 because it's faster"
+	"timestampRelease": 1242250080000,
+	"commitMessage": "entity physics handling, add a very silly character model"
 }

@@ -1,7 +1,7 @@
 package com.mojang.rubydung.level;
 
 import com.mojang.rubydung.HitResult;
-import com.mojang.rubydung.Player;
+import com.mojang.rubydung.Entity;
 import com.mojang.rubydung.phys.AABB;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -136,7 +136,7 @@ public class LevelRenderer implements LevelListener {
      *
      * @param player The player
      */
-    public void pick(Player player) {
+    public void pick(Entity player) {
         float radius = 3.0F;
         AABB boundingBox = player.boundingBox.grow(radius, radius, radius);
 

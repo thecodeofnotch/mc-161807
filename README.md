@@ -1,5 +1,5 @@
-# rd-132211 (Pre-Classic)
-Development phase: May 13, 2009 (19:00 - 22:11 UTC+2)
+# rd-132328 (Pre-Classic)
+Development phase: May 13, 2009 (22:11 - 23:28 UTC+2)
 
 ## Setup
 1. Clone the project

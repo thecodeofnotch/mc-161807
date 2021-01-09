@@ -24,7 +24,7 @@ public class RubyDung implements Runnable {
 
     private Level level;
     private LevelRenderer levelRenderer;
-    private Player player;
+    private Entity player;
 
     private final FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
 
@@ -163,7 +163,7 @@ public class RubyDung implements Runnable {
      * @param partialTicks Overflow ticks to calculate smooth a movement
      */
     private void moveCameraToPlayer(float partialTicks) {
-        Player player = this.player;
+        Entity player = this.player;
 
         // Eye height
         glTranslatef(0.0f, 0.0f, -0.3f);
