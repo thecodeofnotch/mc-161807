@@ -8,7 +8,14 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Zombie extends Entity {
 
-    public Cube cube;
+    public Cube head;
+    public Cube body;
+
+    public Cube rightArm;
+    public Cube leftArm;
+
+    public Cube rightLeg;
+    public Cube leftLeg;
 
     /**
      * Human model test
@@ -23,9 +30,33 @@ public class Zombie extends Entity {
         this.y = y;
         this.z = z;
 
-        // Create cube
-        this.cube = new Cube(0, 0)
-                .addBox(0.0F, 0.0F, 0.0F, 8, 8, 8);
+        // Create head cube
+        this.head = new Cube(0, 0)
+                .addBox(-4.0F, -8.0F, -4.0F, 8, 8, 8);
+
+        // Create body cube
+        this.body = new Cube(16, 16)
+                .addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4);
+
+        // Right arm cube
+        this.rightArm = new Cube(40, 16)
+                .addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4);
+        this.rightArm.setPosition(-5.0F, 2.0F, 0.0F);
+
+        // Left arm cube
+        this.leftArm = new Cube(40, 16)
+                .addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4);
+        this.leftArm.setPosition(5.0F, 2.0F, 0.0F);
+
+        // Right Legs cube
+        this.rightLeg = new Cube(0, 16)
+                .addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4);
+        this.rightLeg.setPosition(-2.0F, 12.0F, 0.0F);
+
+        // Left leg cube
+        this.leftLeg = new Cube(0, 16)
+                .addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4);
+        this.leftLeg.setPosition(2.0F, 12.0F, 0.0F);
     }
 
 
@@ -67,7 +98,7 @@ public class Zombie extends Entity {
         glEnable(GL_TEXTURE_2D);
 
         // Bind texture
-        glBindTexture(GL_TEXTURE_2D, Textures.loadTexture("/cube.png", GL_NEAREST));
+        glBindTexture(GL_TEXTURE_2D, Textures.loadTexture("/char.png", GL_NEAREST));
 
         // Interpolate entity position
         double interpolatedX = this.prevX + (this.x - this.prevX) * partialTicks;
@@ -85,10 +116,15 @@ public class Zombie extends Entity {
         glScalef(size, size, size);
 
         // Body offset
-        glTranslated(0.0F, -8.0D, 0.0F);
+        glTranslated(0.0F, -23.0D, 0.0F);
 
         // Render cubes
-        this.cube.render();
+        this.head.render();
+        this.body.render();
+        this.rightArm.render();
+        this.leftArm.render();
+        this.rightLeg.render();
+        this.leftLeg.render();
 
         // Stop rendering
         glDisable(GL_TEXTURE_2D);
