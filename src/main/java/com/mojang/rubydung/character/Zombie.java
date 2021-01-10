@@ -20,6 +20,9 @@ public class Zombie extends Entity {
     public double rotation = Math.random() * Math.PI * 2;
     public double rotationMotionFactor = (Math.random() + 1.0) * 0.01F;
 
+    public float timeOffset = (float) (Math.random() * 1239813.0F);
+    public float speed = 1.0F;
+
     /**
      * Human model test
      *
@@ -78,6 +81,11 @@ public class Zombie extends Entity {
         float vertical = (float) Math.sin(this.rotation);
         float forward = (float) Math.cos(this.rotation);
 
+        // Randomly jump
+        if (this.onGround && Math.random() < 0.01) {
+            this.motionY = 0.12f;
+        }
+
         // Apply motion the zombie using the vertical and forward direction
         moveRelative(vertical, forward, this.onGround ? 0.02f : 0.005f);
 
@@ -117,6 +125,9 @@ public class Zombie extends Entity {
         // Bind texture
         glBindTexture(GL_TEXTURE_2D, Textures.loadTexture("/char.png", GL_NEAREST));
 
+        // Zombie animation time
+        double time = System.nanoTime() / 1000000000D * 10.0 * this.speed + this.timeOffset;
+
         // Interpolate entity position
         double interpolatedX = this.prevX + (this.x - this.prevX) * partialTicks;
         double interpolatedY = this.prevY + (this.y - this.prevY) * partialTicks;
@@ -132,11 +143,22 @@ public class Zombie extends Entity {
         float size = 7.0F / 120.0F;
         glScalef(size, size, size);
 
-        // Body offset
-        glTranslated(0.0F, -23.0D, 0.0F);
+        // Body offset animation
+        double offsetY = Math.abs(Math.sin(time * 2.0D / 3.0D)) * 5.0 + 23.0D;
+        glTranslated(0.0F, -offsetY, 0.0F);
 
         // Rotate the entity
         glRotated(Math.toDegrees(this.rotation) + 180, 0.0F, 1.0F, 0.0F);
+
+        // Set rotation of cubes
+        this.head.yRotation = (float) Math.sin(time * 0.83);
+        this.head.xRotation = (float) Math.sin(time) * 0.8F;
+        this.rightArm.xRotation = (float) Math.sin(time * 0.6662 + Math.PI) * 2.0F;
+        this.rightArm.zRotation = (float) (Math.sin(time * 0.2312) + 1.0);
+        this.leftArm.xRotation = (float) Math.sin(time * 0.6662) * 2.0f;
+        this.leftArm.zRotation = (float) (Math.sin(time * 0.2812) - 1.0);
+        this.rightLeg.xRotation = (float) Math.sin(time * 0.6662) * 1.4f;
+        this.leftLeg.xRotation = (float) Math.sin(time * 0.6662 + Math.PI) * 1.4F;
 
         // Render cubes
         this.head.render();
