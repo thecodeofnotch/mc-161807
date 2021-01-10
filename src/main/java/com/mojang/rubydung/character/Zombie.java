@@ -17,6 +17,9 @@ public class Zombie extends Entity {
     public Cube rightLeg;
     public Cube leftLeg;
 
+    public double rotation = Math.random() * Math.PI * 2;
+    public double rotationMotionFactor = (Math.random() + 1.0) * 0.01F;
+
     /**
      * Human model test
      *
@@ -63,6 +66,20 @@ public class Zombie extends Entity {
     @Override
     public void tick() {
         super.tick();
+
+        // Increase movement direction
+        this.rotation += this.rotationMotionFactor;
+
+        // Modify direction motion factor
+        this.rotationMotionFactor *= 0.99D;
+        this.rotationMotionFactor += (Math.random() - Math.random()) * Math.random() * Math.random() * 0.009999999776482582;
+
+        // Calculate movement input using rotation
+        float vertical = (float) Math.sin(this.rotation);
+        float forward = (float) Math.cos(this.rotation);
+
+        // Apply motion the zombie using the vertical and forward direction
+        moveRelative(vertical, forward, this.onGround ? 0.02f : 0.005f);
 
         // Apply gravity
         this.motionY -= (float) 0.005;
@@ -117,6 +134,9 @@ public class Zombie extends Entity {
 
         // Body offset
         glTranslated(0.0F, -23.0D, 0.0F);
+
+        // Rotate the entity
+        glRotated(Math.toDegrees(this.rotation) + 180, 0.0F, 1.0F, 0.0F);
 
         // Render cubes
         this.head.render();
