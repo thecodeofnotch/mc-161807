@@ -8,7 +8,6 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Chunk {
 
-    private static final int TEXTURE = Textures.loadTexture("/terrain.png", GL_NEAREST);
     private static final Tessellator TESSELLATOR = new Tessellator();
 
     /**
@@ -84,7 +83,7 @@ public class Chunk {
         // Setup tile rendering
         glNewList(this.lists + layer, GL_COMPILE);
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE, TEXTURE);
+        glBindTexture(GL_TEXTURE_2D, Textures.loadTexture("/terrain.png", GL_NEAREST));
         TESSELLATOR.init();
 
         // For each tile in this chunk

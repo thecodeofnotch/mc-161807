@@ -1,5 +1,7 @@
 package com.mojang.rubydung;
 
+import com.mojang.rubydung.character.Cube;
+import com.mojang.rubydung.character.Zombie;
 import com.mojang.rubydung.level.Chunk;
 import com.mojang.rubydung.level.Level;
 import com.mojang.rubydung.level.LevelRenderer;
@@ -9,10 +11,13 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
@@ -25,6 +30,8 @@ public class RubyDung implements Runnable {
     private Level level;
     private LevelRenderer levelRenderer;
     private Entity player;
+
+    private List<Zombie> zombies = new ArrayList<>();
 
     private final FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
 
@@ -80,6 +87,11 @@ public class RubyDung implements Runnable {
 
         // Grab mouse cursor
         Mouse.setGrabbed(true);
+
+        // Spawn some zombies
+        for (int i = 0; i < 100; ++i) {
+            this.zombies.add(new Zombie(this.level, 0.0F, 0.0F, 0.0F));
+        }
     }
 
     /**
@@ -154,6 +166,10 @@ public class RubyDung implements Runnable {
      * Game tick, called exactly 20 times per second
      */
     private void tick() {
+        for (Zombie zombie : this.zombies) {
+            zombie.tick();
+        }
+
         this.player.tick();
     }
 
@@ -339,6 +355,8 @@ public class RubyDung implements Runnable {
         // Clear color and depth buffer and reset the camera
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        GL11.glClear(16640);
+
         // Setup normal player camera
         setupCamera(partialTicks);
 
@@ -352,6 +370,11 @@ public class RubyDung implements Runnable {
 
         // Render bright tiles
         this.levelRenderer.render(0);
+
+        // Render zombies
+        for (Zombie zombie : this.zombies) {
+            zombie.render(partialTicks);
+        }
 
         // Enable fog to render shadow
         glEnable(GL_FOG);

@@ -18,10 +18,7 @@ public class Player extends Entity {
 
     @Override
     public void tick() {
-        // Store previous position
-        this.prevX = this.x;
-        this.prevY = this.y;
-        this.prevZ = this.z;
+        super.tick();
 
         float forward = 0.0F;
         float vertical = 0.0F;

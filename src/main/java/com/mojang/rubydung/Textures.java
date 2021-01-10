@@ -7,11 +7,15 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.util.glu.GLU.gluBuild2DMipmaps;
 
 public class Textures {
+
+    private static final Map<String, Integer> idMap = new HashMap<>();
 
     private static int lastId = Integer.MIN_VALUE;
 
@@ -23,8 +27,15 @@ public class Textures {
      * @return Texture id of OpenGL
      */
     public static int loadTexture(String resourceName, int mode) {
+        if (idMap.containsKey(resourceName)) {
+            return idMap.get(resourceName);
+        }
+
         // Generate a new texture id
         int id = glGenTextures();
+
+        // Store id in map
+        idMap.put(resourceName, id);
 
         // Bind this texture id
         bind(id);
