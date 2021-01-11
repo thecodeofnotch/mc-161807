@@ -352,10 +352,19 @@ public class RubyDung implements Runnable {
             }
         }
 
+        // Listen for keyboard inputs
+        while (Keyboard.next()) {
+
+            // On 'Enter' key press
+            if (Keyboard.getEventKey() == 28 && Keyboard.getEventKeyState()) {
+
+                // Save the level
+                this.level.save();
+            }
+        }
+
         // Clear color and depth buffer and reset the camera
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        GL11.glClear(16640);
 
         // Setup normal player camera
         setupCamera(partialTicks);
