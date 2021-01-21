@@ -37,34 +37,76 @@ public class Level {
         this.blocks = new byte[width * height * depth];
         this.lightDepths = new int[width * height];
 
-        // Fill level with tiles
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < depth; y++) {
-                for (int z = 0; z < height; z++) {
-                    // Calculate index from x, y and z
-                    int index = (y * this.height + z) * this.width + x;
+        // Load level if it exists
+        boolean mapLoaded = load();
 
-                    // Fill level with tiles
-                    if(y <= depth * 2 / 3) {
-                        if(y <= depth * 2 / 4) {
-                            this.blocks[index] = (byte) Tile.rock.id;
-                        } else {
-                            if(y == depth * 2 / 3) {
-                                this.blocks[index] = (byte) Tile.grass.id;
-                            } else {
-                                this.blocks[index] = (byte) Tile.dirt.id;
-                            }
-                        }
-                    }
-                }
-            }
+        // Generate a new level if file doesn't exists
+        if (!mapLoaded) {
+            generateMap();
         }
 
         // Calculate light depth of the entire level
         calcLightDepths(0, 0, width, height);
+    }
 
-        // Load level if it exists
-        load();
+    /**
+     * Generate a new level
+     */
+    private void generateMap() {
+        int[] firstHeightMap = new PerlinNoiseFilter(0).read(this.width, this.height);
+        int[] secondHeightMap = new PerlinNoiseFilter(0).read(this.width, this.height);
+        int[] cliffMap = new PerlinNoiseFilter(1).read(this.width, this.height);
+        int[] rockMap = new PerlinNoiseFilter(1).read(this.width, this.height);
+
+        // Generate tiles
+        for (int x = 0; x < width; ++x) {
+            for (int y = 0; y < depth; ++y) {
+                for (int z = 0; z < height; ++z) {
+                    // Extract values from height map
+                    int firstHeightValue = firstHeightMap[x + z * this.width];
+                    int secondHeightValue = secondHeightMap[x + z * this.width];
+
+                    // Change the height map
+                    if (cliffMap[x + z * this.width] < 128) {
+                        secondHeightValue = firstHeightValue;
+                    }
+
+                    // Get max level height at this position
+                    int maxLevelHeight = Math.max(secondHeightValue, firstHeightValue) / 8 + this.depth / 3;
+
+                    // Get end of rock layer
+                    int maxRockHeight = rockMap[x + z * this.width] / 8 + this.depth / 3;
+
+                    // Keep it below the max height of the level
+                    if (maxRockHeight > maxLevelHeight - 2) {
+                        maxRockHeight = maxLevelHeight - 2;
+                    }
+
+                    // Get block array index
+                    int index = (y * this.height + z) * this.width + x;
+
+                    int id = 0;
+
+                    // Grass layer
+                    if (y == maxLevelHeight) {
+                        id = Tile.grass.id;
+                    }
+
+                    // Dirt layer
+                    if (y < maxLevelHeight) {
+                        id = Tile.dirt.id;
+                    }
+
+                    // Rock layer
+                    if (y <= maxRockHeight) {
+                        id = Tile.rock.id;
+                    }
+
+                    // Set the tile id
+                    this.blocks[index] = (byte) id;
+                }
+            }
+        }
     }
 
     /**
