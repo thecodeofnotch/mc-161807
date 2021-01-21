@@ -72,7 +72,7 @@ public class LevelRenderer implements LevelListener {
     /**
      * Get all chunks with dirty flag
      *
-     * @return
+     * @return List of dirty chunks
      */
     public List<Chunk> getAllDirtyChunks() {
         ArrayList<Chunk> dirty = new ArrayList<>();

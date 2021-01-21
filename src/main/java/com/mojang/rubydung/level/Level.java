@@ -256,34 +256,6 @@ public class Level {
     }
 
     /**
-     * Get brightness of a tile
-     *
-     * @param x Tile position x
-     * @param y Tile position y
-     * @param z Tile position z
-     * @return The brightness value from 0 to 1
-     */
-    public float getBrightness(int x, int y, int z) {
-        // Define brightness
-        float dark = 0.8F;
-        float light = 1.0F;
-
-        // Is light tile
-        if (x < 0 || y < 0 || z < 0 || x >= this.width || y >= this.depth || z >= this.height) {
-            return light;
-        }
-
-        // Is dark tile
-        if (y < this.lightDepths[x + z * this.width]) {
-            return dark;
-        }
-
-        // Unknown brightness
-        return light;
-    }
-
-
-    /**
      * Get bounding box of all tiles surrounded by the given bounding box
      *
      * @param boundingBox Target bounding box located in the level
