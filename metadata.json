@@ -1,4 +1,4 @@
 {
 	"timestampRelease": 1242338400000,
-	"commitMessage": ""
+	"commitMessage": "add perlin noise world generation, grass turns into dirt if it doesn't get sun, and grass spreads to nearby dirt tiles, add hotkeys to change picked tile, add wood tile, add HUD, add fullscreen mode"
 }
