@@ -1,6 +1,9 @@
 # rd-132328 (Pre-Classic)
 Development phase: May 13, 2009 (22:11 - 23:28 UTC+2)
 
+![Human](.assets/human.jpg)<br>
+"A simple house and a very very silly mob." ~[The Word of Notch](https://notch.tumblr.com/post/107394370/a-simple-house-and-a-very-very-silly-mob)
+
 ## Changes
 - Moved physics handling to a parent class called "Entity"
 - Added cube renderer
