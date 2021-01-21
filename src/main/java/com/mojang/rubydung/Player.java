@@ -17,8 +17,8 @@ public class Player extends Entity {
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    public void onTick() {
+        super.onTick();
 
         float forward = 0.0F;
         float vertical = 0.0F;

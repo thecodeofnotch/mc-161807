@@ -91,7 +91,7 @@ public abstract class Entity {
     /**
      * Update the entity
      */
-    public void tick() {
+    public void onTick() {
         // Store previous position
         this.prevX = this.x;
         this.prevY = this.y;

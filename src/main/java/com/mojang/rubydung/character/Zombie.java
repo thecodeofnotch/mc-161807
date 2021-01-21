@@ -65,8 +65,8 @@ public class Zombie extends Entity {
 
 
     @Override
-    public void tick() {
-        super.tick();
+    public void onTick() {
+        super.onTick();
 
         // Kill in void
         if (this.y < -100.0F) {

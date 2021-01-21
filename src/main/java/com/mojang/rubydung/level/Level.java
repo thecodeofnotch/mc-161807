@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -21,6 +22,7 @@ public class Level {
     private final int[] lightDepths;
 
     private final ArrayList<LevelListener> levelListeners = new ArrayList<>();
+    private final Random random = new Random();
 
     /**
      * Three dimensional level containing all tiles
@@ -366,5 +368,31 @@ public class Level {
      */
     public boolean isLit(int x, int y, int z) {
         return x < 0 || y < 0 || z < 0 || x >= this.width || y >= this.depth || z >= this.height || y >= this.lightDepths[x + z * this.width];
+    }
+
+    /**
+     * Tick a random tile in the level
+     */
+    public void onTick() {
+        // Amount of tiles in this level
+        int totalTiles = this.width * this.height * this.depth;
+
+        // Amount of tiles to process for this tick
+        int ticks = totalTiles / 400;
+
+        // Tick multiple tiles in one game tick
+        for (int i = 0; i < ticks; ++i) {
+            // Get random position of the tile
+            int x = this.random.nextInt(this.width);
+            int y = this.random.nextInt(this.depth);
+            int z = this.random.nextInt(this.height);
+
+            // Get tile type
+            Tile tile = Tile.tiles[this.getTile(x, y, z)];
+            if (tile != null) {
+                // Tick tile
+                tile.onTick(this, x, y, z, this.random);
+            }
+        }
     }
 }

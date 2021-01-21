@@ -232,13 +232,16 @@ public class RubyDung implements Runnable {
             }
         }
 
+        // Tick random tile in level
+        this.level.onTick();
+
         // Tick zombies
         Iterator<Zombie> iterator = this.zombies.iterator();
         while (iterator.hasNext()) {
             Zombie zombie = iterator.next();
 
             // Tick zombie
-            zombie.tick();
+            zombie.onTick();
 
             // Remove zombie
             if (zombie.removed) {
@@ -247,7 +250,7 @@ public class RubyDung implements Runnable {
         }
 
         // Tick player
-        this.player.tick();
+        this.player.onTick();
     }
 
     /**

@@ -3,6 +3,8 @@ package com.mojang.rubydung.level.tile;
 import com.mojang.rubydung.level.Level;
 import com.mojang.rubydung.level.Tessellator;
 
+import java.util.Random;
+
 public class Tile {
 
     // Tile array
@@ -229,5 +231,18 @@ public class Tile {
             tessellator.vertex(maxX, maxY, minZ);
             tessellator.vertex(maxX, maxY, maxZ);
         }
+    }
+
+    /**
+     * Ticked randomly
+     *
+     * @param level  Level instance
+     * @param x      Position x of the tile
+     * @param y      Position y of the tile
+     * @param z      Position z of the tile
+     * @param random Random instance
+     */
+    public void onTick(Level level, int x, int y, int z, Random random) {
+        // No implementation
     }
 }
