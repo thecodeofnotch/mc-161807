@@ -1,10 +1,7 @@
 package com.mojang.rubydung;
 
 import com.mojang.rubydung.character.Zombie;
-import com.mojang.rubydung.level.Chunk;
-import com.mojang.rubydung.level.Level;
-import com.mojang.rubydung.level.LevelRenderer;
-import com.mojang.rubydung.level.Tessellator;
+import com.mojang.rubydung.level.*;
 import com.mojang.rubydung.level.tile.Tile;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -418,6 +415,9 @@ public class RubyDung implements Runnable {
         // Setup normal player camera
         setupCamera(partialTicks);
 
+        // Get current frustum
+        Frustum frustum = Frustum.getFrustum();
+
         // Setup fog
         glEnable(GL_FOG);
         glFogi(GL_FOG_MODE, GL_LINEAR);
@@ -429,9 +429,11 @@ public class RubyDung implements Runnable {
         // Render bright tiles
         this.levelRenderer.render(0);
 
-        // Render zombies
+        // Render zombies in sunlight
         for (Zombie zombie : this.zombies) {
-            zombie.render(partialTicks);
+            if (zombie.isLit() && frustum.isVisible(zombie.boundingBox)) {
+                zombie.render(partialTicks);
+            }
         }
 
         // Enable fog to render shadow
@@ -439,6 +441,13 @@ public class RubyDung implements Runnable {
 
         // Render dark tiles in shadow
         this.levelRenderer.render(1);
+
+        // Render zombies in shadow
+        for (Zombie zombie : this.zombies) {
+            if (!zombie.isLit() && frustum.isVisible(zombie.boundingBox)) {
+                zombie.render(partialTicks);
+            }
+        }
 
         // Finish rendering
         glDisable(GL_LIGHTING);

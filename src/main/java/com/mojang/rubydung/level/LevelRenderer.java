@@ -81,7 +81,7 @@ public class LevelRenderer implements LevelListener {
         for (Chunk chunk : this.chunks) {
 
             // Render if bounding box of chunk is in frustum
-            if (frustum.cubeInFrustum(chunk.boundingBox)) {
+            if (frustum.isVisible(chunk.boundingBox)) {
 
                 // Render chunk
                 chunk.render(layer);

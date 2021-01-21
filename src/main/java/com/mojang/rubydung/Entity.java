@@ -164,4 +164,13 @@ public abstract class Entity {
         this.motionX += x * cos - z * sin;
         this.motionZ += z * cos + x * sin;
     }
+
+    /**
+     * Is entity in sun
+     *
+     * @return Entity is in sunlight
+     */
+    public boolean isLit() {
+        return this.level.isLit((int) this.x, (int) this.y, (int) this.z);
+    }
 }
