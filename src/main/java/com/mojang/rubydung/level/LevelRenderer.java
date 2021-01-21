@@ -236,7 +236,7 @@ public class LevelRenderer implements LevelListener {
         // Setup blending and color
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_CURRENT_BIT);
-        glColor4f(1.0f, 1.0f, 1.0f, (float) Math.sin(System.currentTimeMillis() / 100.0) * 0.2f + 0.4f);
+        glColor4f(1.0F, 1.0F, 1.0F, ((float)Math.sin(System.currentTimeMillis() / 100.0D) * 0.2F + 0.4F) * 0.5F);
 
         // Render face
         this.tessellator.init();

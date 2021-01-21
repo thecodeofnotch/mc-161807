@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.gluPerspective;
-import static org.lwjgl.util.glu.GLU.gluPickMatrix;
+import static org.lwjgl.util.glu.GLU.*;
 
 public class RubyDung implements Runnable {
 
+    private static final boolean FULLSCREEN_MODE = true;
     private final Timer timer = new Timer(60);
 
     private Level level;
@@ -31,13 +31,18 @@ public class RubyDung implements Runnable {
 
     private final List<Zombie> zombies = new ArrayList<>();
 
-    private final FloatBuffer fogColor = BufferUtils.createFloatBuffer(4);
+    /**
+     * Fog
+     */
+    private final FloatBuffer fogColorDaylight = BufferUtils.createFloatBuffer(4);
+    private final FloatBuffer fogColorShadow = BufferUtils.createFloatBuffer(4);
+    private final FloatBuffer colorBuffer = BufferUtils.createFloatBuffer(16);
 
     /**
      * Screen resolution
      */
-    private final int width = 1024;
-    private final int height = 768;
+    private int width = 1024;
+    private int height = 768;
 
     /**
      * Tile picking
@@ -63,8 +68,16 @@ public class RubyDung implements Runnable {
      * @throws LWJGLException Game could not be initialized
      */
     public void init() throws LWJGLException {
-        // Write fog color
-        this.fogColor.put(new float[]{
+        // Write fog color for daylight
+        this.fogColorDaylight.put(new float[]{
+                254 / 255.0f,
+                251 / 255.0f,
+                250 / 255.0f,
+                255 / 255.0F
+        }).flip();
+
+        // Write fog color for shadow
+        this.fogColorShadow.put(new float[]{
                 14 / 255.0F,
                 11 / 255.0F,
                 10 / 255.0F,
@@ -72,12 +85,23 @@ public class RubyDung implements Runnable {
         }).flip();
 
         // Set screen size
-        Display.setDisplayMode(new DisplayMode(this.width, this.height));
+        Display.setFullscreen(FULLSCREEN_MODE);
+
+        // Set defined window size
+        if (!FULLSCREEN_MODE) {
+            Display.setDisplayMode(new DisplayMode(this.width, this.height));
+        }
 
         // Setup I/O
         Display.create();
         Keyboard.create();
         Mouse.create();
+
+        // Use monitor size in fullscreen
+        if (FULLSCREEN_MODE) {
+            this.width = Display.getDisplayMode().getWidth();
+            this.height = Display.getDisplayMode().getHeight();
+        }
 
         // Setup rendering
         glEnable(GL_TEXTURE_2D);
@@ -416,6 +440,7 @@ public class RubyDung implements Runnable {
 
         // Setup normal player camera
         setupCamera(partialTicks);
+        glEnable(GL_CULL_FACE);
 
         // Get current frustum
         Frustum frustum = Frustum.getFrustum();
@@ -423,13 +448,9 @@ public class RubyDung implements Runnable {
         // Update dirty chunks
         this.levelRenderer.updateDirtyChunks(this.player);
 
-        // Setup fog
+        // Setup daylight fog
+        setupFog(0);
         glEnable(GL_FOG);
-        glFogi(GL_FOG_MODE, GL_LINEAR);
-        glFogf(GL_FOG_START, -10);
-        glFogf(GL_FOG_END, 20);
-        glFog(GL_FOG_COLOR, this.fogColor);
-        glDisable(GL_FOG);
 
         // Render bright tiles
         this.levelRenderer.render(0);
@@ -441,8 +462,8 @@ public class RubyDung implements Runnable {
             }
         }
 
-        // Enable fog to render shadow
-        glEnable(GL_FOG);
+        // Setup shadow fog
+        setupFog(1);
 
         // Render dark tiles in shadow
         this.levelRenderer.render(1);
@@ -525,6 +546,57 @@ public class RubyDung implements Runnable {
         this.tessellator.vertex((float) (x - 8), (float) (y + 1), 0.0f);
         this.tessellator.vertex((float) (x + 9), (float) (y + 1), 0.0f);
         this.tessellator.flush();
+    }
+
+    /**
+     * Setup fog with type
+     *
+     * @param fogType Type of the fog. (0: daylight, 1: shadow)
+     */
+    private void setupFog(int fogType) {
+        // Daylight fog
+        if (fogType == 0) {
+            // Fog distance
+            glFogi(GL_FOG_MODE, GL_VIEWPORT_BIT);
+            glFogf(GL_FOG_DENSITY, 0.001F);
+
+            // Set fog color
+            glFog(GL_FOG_COLOR, this.fogColorDaylight);
+
+            glDisable(GL_LIGHTING);
+        }
+
+        // Shadow fog
+        if (fogType == 1) {
+            // Fog distance
+            glFogi(GL_FOG_MODE, GL_VIEWPORT_BIT);
+            glFogf(GL_FOG_DENSITY, 0.06F);
+
+            // Set fog color
+            glFog(GL_FOG_COLOR, this.fogColorShadow);
+
+            glEnable(GL_LIGHTING);
+            glEnable(GL_COLOR_MATERIAL);
+
+            float brightness = 0.6F;
+            glLightModel(GL_LIGHT_MODEL_AMBIENT, this.getBuffer(brightness, brightness, brightness, 1.0F));
+        }
+    }
+
+    /**
+     * Fill float buffer with color values and return it
+     *
+     * @param red   Red value
+     * @param green Green value
+     * @param blue  Blue value
+     * @param alpha Alpha value
+     * @return Float buffer filled in RGBA order
+     */
+    private FloatBuffer getBuffer(float red, float green, float blue, float alpha) {
+        this.colorBuffer.clear();
+        this.colorBuffer.put(red).put(green).put(blue).put(alpha);
+        this.colorBuffer.flip();
+        return this.colorBuffer;
     }
 
     /**
