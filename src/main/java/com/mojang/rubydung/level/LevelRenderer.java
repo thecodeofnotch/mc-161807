@@ -1,9 +1,13 @@
 package com.mojang.rubydung.level;
 
-import com.mojang.rubydung.HitResult;
 import com.mojang.rubydung.Entity;
+import com.mojang.rubydung.HitResult;
+import com.mojang.rubydung.Player;
 import com.mojang.rubydung.level.tile.Tile;
 import com.mojang.rubydung.phys.AABB;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -66,6 +70,21 @@ public class LevelRenderer implements LevelListener {
     }
 
     /**
+     * Get all chunks with dirty flag
+     *
+     * @return
+     */
+    public List<Chunk> getAllDirtyChunks() {
+        ArrayList<Chunk> dirty = new ArrayList<>();
+        for (final Chunk chunk : this.chunks) {
+            if (chunk.isDirty()) {
+                dirty.add(chunk);
+            }
+        }
+        return dirty;
+    }
+
+    /**
      * Render all chunks of the level
      *
      * @param layer The render layer
@@ -85,6 +104,26 @@ public class LevelRenderer implements LevelListener {
 
                 // Render chunk
                 chunk.render(layer);
+            }
+        }
+    }
+
+    /**
+     * Rebuild all dirty chunks in a sorted order
+     *
+     * @param player The player for the sort priority. Chunks closer to the player will get a higher priority.
+     */
+    public void updateDirtyChunks(Player player) {
+        // Get all dirty chunks
+        List<Chunk> dirty = getAllDirtyChunks();
+        if (!dirty.isEmpty()) {
+
+            // Sort the dirty chunk list
+            dirty.sort(new DirtyChunkSorter(player, Frustum.getFrustum()));
+
+            // Rebuild max 8 chunks per frame
+            for (int i = 0; i < 8 && i < dirty.size(); i++) {
+                dirty.get(i).rebuild();
             }
         }
     }

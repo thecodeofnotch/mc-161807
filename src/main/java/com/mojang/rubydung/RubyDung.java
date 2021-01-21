@@ -27,7 +27,7 @@ public class RubyDung implements Runnable {
 
     private Level level;
     private LevelRenderer levelRenderer;
-    private Entity player;
+    private Player player;
 
     private final List<Zombie> zombies = new ArrayList<>();
 
@@ -97,8 +97,10 @@ public class RubyDung implements Runnable {
         Mouse.setGrabbed(true);
 
         // Spawn some zombies
-        for (int i = 0; i < 100; ++i) {
-            this.zombies.add(new Zombie(this.level, 0.0F, 0.0F, 0.0F));
+        for (int i = 0; i < 10; ++i) {
+            Zombie zombie = new Zombie(this.level, 128.0F, 0.0F, 129.0F);
+            zombie.resetPosition();
+            this.zombies.add(zombie);
         }
     }
 
@@ -417,6 +419,9 @@ public class RubyDung implements Runnable {
 
         // Get current frustum
         Frustum frustum = Frustum.getFrustum();
+
+        // Update dirty chunks
+        this.levelRenderer.updateDirtyChunks(this.player);
 
         // Setup fog
         glEnable(GL_FOG);

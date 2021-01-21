@@ -1,5 +1,6 @@
 package com.mojang.rubydung.level;
 
+import com.mojang.rubydung.Player;
 import com.mojang.rubydung.Textures;
 import com.mojang.rubydung.level.tile.Tile;
 import com.mojang.rubydung.phys.AABB;
@@ -16,6 +17,13 @@ public class Chunk {
      */
     public static int rebuiltThisFrame;
     public static int updates;
+    public long dirtiedTime;
+
+    /**
+     * Internal rebuild statistic
+     */
+    private static long totalTime;
+    private static int totalUpdates;
 
     /**
      * The game level
@@ -28,6 +36,7 @@ public class Chunk {
     public AABB boundingBox;
     private final int minX, minY, minZ;
     private final int maxX, maxY, maxZ;
+    private final float x, y, z;
 
     /**
      * Rendering states
@@ -56,6 +65,11 @@ public class Chunk {
         this.maxY = maxY;
         this.maxZ = maxZ;
 
+        // Center of chunk
+        this.x = (minX + maxX) / 2.0f;
+        this.y = (minY + maxY) / 2.0f;
+        this.z = (minZ + maxZ) / 2.0f;
+
         // Generate lists id
         this.lists = glGenLists(2);
 
@@ -81,6 +95,10 @@ public class Chunk {
         // Mark chunk as no longer dirty
         this.dirty = false;
 
+        // Tile render counter
+        int tiles = 0;
+        long timeRebuildStart = System.nanoTime();
+
         // Setup tile rendering
         glNewList(this.lists + layer, GL_COMPILE);
         glEnable(GL_TEXTURE_2D);
@@ -97,6 +115,9 @@ public class Chunk {
                     if (tileId > 0) {
                         // Render the tile
                         Tile.tiles[tileId].render(TESSELLATOR, this.level, layer, x, y, z);
+
+                        // Increase tile render counter
+                        tiles++;
                     }
                 }
             }
@@ -106,6 +127,20 @@ public class Chunk {
         TESSELLATOR.flush();
         glDisable(GL_TEXTURE_2D);
         glEndList();
+
+        // Update chunk update counter
+        if (tiles > 0) {
+            totalTime += System.nanoTime() - timeRebuildStart;
+            totalUpdates++;
+        }
+    }
+
+    /**
+     * Rebuild the chunk for all layers
+     */
+    public void rebuild() {
+        rebuild(0);
+        rebuild(1);
     }
 
     /**
@@ -114,12 +149,6 @@ public class Chunk {
      * @param layer The render layer (Shadow layer)
      */
     public void render(int layer) {
-        // Rebuild chunk if dirty
-        if (this.dirty) {
-            rebuild(0);
-            rebuild(1);
-        }
-
         // Call lists id to render the chunk
         glCallList(this.lists + layer);
     }
@@ -128,6 +157,32 @@ public class Chunk {
      * Mark chunk as dirty. The chunk will rebuild in the next frame
      */
     public void setDirty() {
+        if (!this.dirty) {
+            this.dirtiedTime = System.currentTimeMillis();
+        }
+
         this.dirty = true;
+    }
+
+    /**
+     * State of the chunk for rebuild
+     *
+     * @return Chunk is dirty
+     */
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    /**
+     * Calculate squared distance to the player
+     *
+     * @param player The player for the location
+     * @return The squared distance from the center of the chunk to the player
+     */
+    public double distanceToSqr(Player player) {
+        double distanceX = player.x - this.x;
+        double distanceY = player.y - this.y;
+        double distanceZ = player.z - this.z;
+        return distanceX * distanceX + distanceY * distanceY + distanceZ * distanceZ;
     }
 }
