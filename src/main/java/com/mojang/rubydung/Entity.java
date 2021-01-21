@@ -19,6 +19,8 @@ public abstract class Entity {
     protected boolean onGround;
     protected float heightOffset;
 
+    public boolean removed;
+
     /**
      * Entity with physics
      *
@@ -62,6 +64,13 @@ public abstract class Entity {
         float z = (float) Math.random() * this.level.height;
 
         setPosition(x, y, z);
+    }
+
+    /**
+     * Remove the entity in the next tick
+     */
+    public void remove() {
+        this.removed = true;
     }
 
     /**

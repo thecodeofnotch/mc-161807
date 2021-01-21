@@ -68,6 +68,11 @@ public class Zombie extends Entity {
     public void tick() {
         super.tick();
 
+        // Kill in void
+        if (this.y < -100.0F) {
+            remove();
+        }
+
         // Increase movement direction
         this.rotation += this.rotationMotionFactor;
 
@@ -97,11 +102,6 @@ public class Zombie extends Entity {
         this.motionX *= 0.91f;
         this.motionY *= 0.98f;
         this.motionZ *= 0.91f;
-
-        // Reset position in void
-        if (this.y < -100.0F) {
-            resetPosition();
-        }
 
         // Decrease motion speed on ground
         if (this.onGround) {

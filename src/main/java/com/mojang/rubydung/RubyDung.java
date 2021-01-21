@@ -15,10 +15,12 @@ import javax.swing.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.util.glu.GLU.*;
+import static org.lwjgl.util.glu.GLU.gluPerspective;
+import static org.lwjgl.util.glu.GLU.gluPickMatrix;
 
 public class RubyDung implements Runnable {
 
@@ -230,9 +232,18 @@ public class RubyDung implements Runnable {
             }
         }
 
-        // Render zombies
-        for (Zombie zombie : this.zombies) {
+        // Tick zombies
+        Iterator<Zombie> iterator = this.zombies.iterator();
+        while (iterator.hasNext()) {
+            Zombie zombie = iterator.next();
+
+            // Tick zombie
             zombie.tick();
+
+            // Remove zombie
+            if (zombie.removed) {
+                iterator.remove();
+            }
         }
 
         // Tick player
