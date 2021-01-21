@@ -1,6 +1,7 @@
 package com.mojang.rubydung.level;
 
 import com.mojang.rubydung.Textures;
+import com.mojang.rubydung.level.tile.Tile;
 import com.mojang.rubydung.phys.AABB;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -90,17 +91,12 @@ public class Chunk {
         for (int x = this.minX; x < this.maxX; ++x) {
             for (int y = this.minY; y < this.maxY; ++y) {
                 for (int z = this.minZ; z < this.maxZ; ++z) {
-                    // Is a tile at this location?
-                    if (this.level.isTile(x, y, z)) {
-                        int id = (y != this.level.depth * 2 / 3) ? 1 : 0;
+                    int tileId = this.level.getTile(x, y, z);
 
-                        if (id == 0) {
-                            // Render the grass tile
-                            Tile.grass.render(TESSELLATOR, this.level, layer, x, y, z);
-                        } else {
-                            // Render the rock tile
-                            Tile.rock.render(TESSELLATOR, this.level, layer, x, y, z);
-                        }
+                    // Is a tile at this location?
+                    if (tileId > 0) {
+                        // Render the tile
+                        Tile.tiles[tileId].render(TESSELLATOR, this.level, layer, x, y, z);
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.mojang.rubydung.level;
 
+import com.mojang.rubydung.level.tile.Tile;
 import com.mojang.rubydung.phys.AABB;
 
 import java.io.DataInputStream;
@@ -44,7 +45,17 @@ public class Level {
                     int index = (y * this.height + z) * this.width + x;
 
                     // Fill level with tiles
-                    this.blocks[index] = (byte) ((y <= depth * 2 / 3) ? 1 : 0);
+                    if(y <= depth * 2 / 3) {
+                        if(y <= depth * 2 / 4) {
+                            this.blocks[index] = (byte) Tile.rock.id;
+                        } else {
+                            if(y == depth * 2 / 3) {
+                                this.blocks[index] = (byte) Tile.grass.id;
+                            } else {
+                                this.blocks[index] = (byte) Tile.dirt.id;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -58,8 +69,10 @@ public class Level {
 
     /**
      * Load blocks from level.dat
+     *
+     * @return successfully loaded
      */
-    public void load() {
+    public boolean load() {
         try {
             DataInputStream dis = new DataInputStream(new GZIPInputStream(new FileInputStream("level.dat")));
             dis.readFully(this.blocks);
@@ -70,8 +83,12 @@ public class Level {
             for (LevelListener levelListener : this.levelListeners) {
                 levelListener.allChanged();
             }
+
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
+
+            return false;
         }
     }
 
@@ -147,6 +164,27 @@ public class Level {
 
         // Return true if there is a tile at this location
         return this.blocks[index] != 0;
+    }
+
+    /**
+     * Return the id of the tile at the given location
+     *
+     * @param x Level position x
+     * @param y Level position y
+     * @param z Level position z
+     * @return Tile id at this location
+     */
+    public int getTile(int x, int y, int z) {
+        // Is location out of the level?
+        if (x < 0 || y < 0 || z < 0 || x >= this.width || y >= this.depth || z >= this.height) {
+            return 0;
+        }
+
+        // Calculate index from x, y and z
+        int index = (y * this.height + z) * this.width + x;
+
+        // Return tile id
+        return this.blocks[index];
     }
 
     /**
@@ -274,5 +312,17 @@ public class Level {
      */
     public void addListener(LevelListener levelListener) {
         this.levelListeners.add(levelListener);
+    }
+
+    /**
+     * Check if the given tile position is in the sun
+     *
+     * @param x Tile position x
+     * @param y Tile position y
+     * @param z Tile position z
+     * @return Tile is in the sun
+     */
+    public boolean isLit(int x, int y, int z) {
+        return x < 0 || y < 0 || z < 0 || x >= this.width || y >= this.depth || z >= this.height || y >= this.lightDepths[x + z * this.width];
     }
 }

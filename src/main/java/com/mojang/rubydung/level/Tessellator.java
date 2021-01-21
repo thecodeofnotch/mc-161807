@@ -68,12 +68,39 @@ public class Tessellator {
         }
     }
 
+    /**
+     * Add a vertex and set the texture UV mappings
+     *
+     * @param x        Vertex point x
+     * @param y        Vertex point y
+     * @param z        Vertex point z
+     * @param textureU Texture U point
+     * @param textureV Texture V point
+     */
+    public void vertexUV(float x, float y, float z, float textureU, float textureV) {
+        texture(textureU, textureV);
+        vertex(x, y, z);
+    }
+
+    /**
+     * Set texture UV mappings
+     *
+     * @param textureU Texture U point
+     * @param textureV Texture V point
+     */
     public void texture(float textureU, float textureV) {
         this.hasTexture = true;
         this.textureU = textureU;
         this.textureV = textureV;
     }
 
+    /**
+     * Set the RGB color
+     *
+     * @param red   Red (0.0 - 1.0)
+     * @param green Green (0.0 - 1.0)
+     * @param blue  Blue (0.0 - 1.0)
+     */
     public void color(float red, float green, float blue) {
         this.hasColor = true;
         this.red = red;

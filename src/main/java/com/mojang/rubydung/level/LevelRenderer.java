@@ -2,6 +2,7 @@ package com.mojang.rubydung.level;
 
 import com.mojang.rubydung.HitResult;
 import com.mojang.rubydung.Entity;
+import com.mojang.rubydung.level.tile.Tile;
 import com.mojang.rubydung.phys.AABB;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -172,7 +173,7 @@ public class LevelRenderer implements LevelListener {
 
                             // Render selection face
                             this.tessellator.init();
-                            Tile.rock.renderFace(this.tessellator, x, y, z, face);
+                            Tile.rock.renderFaceNoTexture(this.tessellator, x, y, z, face);
                             this.tessellator.flush();
 
                             glPopName();
@@ -200,7 +201,7 @@ public class LevelRenderer implements LevelListener {
 
         // Render face
         this.tessellator.init();
-        Tile.rock.renderFace(this.tessellator, hitResult.x, hitResult.y, hitResult.z, hitResult.face);
+        Tile.rock.renderFaceNoTexture(this.tessellator, hitResult.x, hitResult.y, hitResult.z, hitResult.face);
         this.tessellator.flush();
 
         // Disable blending
