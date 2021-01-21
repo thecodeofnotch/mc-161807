@@ -32,9 +32,7 @@ public class Zombie extends Entity {
         super(level);
 
         // Set the position of the entity
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        setPosition(x, y, z);
 
         // Create head cube
         this.head = new Cube(0, 0)

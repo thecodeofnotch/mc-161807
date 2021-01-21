@@ -37,7 +37,7 @@ public abstract class Entity {
      * @param y Position y
      * @param z Position z
      */
-    private void setPosition(float x, float y, float z) {
+    public void setPosition(double x, double y, double z) {
         // Set the position of the entity
         this.x = x;
         this.y = y;
