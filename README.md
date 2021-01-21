@@ -1,17 +1,16 @@
-# rd-132328 (Pre-Classic)
-Development phase: May 13, 2009 (22:11 - 23:28 UTC+2)
+# rd-20090515 (Pre-Classic)
+Development day: May 15, 2009
 
-![Human](.assets/human.jpg)<br>
-"A simple house and a very very silly mob." ~[The Word of Notch](https://notch.tumblr.com/post/107394370/a-simple-house-and-a-very-very-silly-mob)
+![House](.assets/house.jpg)<br>
+"The back of a house I built!" ~[The Word of Notch](https://notch.tumblr.com/post/108350782/the-back-of-a-house-i-built-a-new-video-is)
 
 ## Changes
-- Moved physics handling to a parent class called "Entity"
-- Added cube renderer
-- Added human character model
+- TODO
 
 ## References
-- [Minecraft Wiki - Java_Edition_pre-Classic_rd-132328](https://minecraft.gamepedia.com/Java_Edition_pre-Classic_rd-132328)
-- [The Word of Notch - Exhausted, but happy](https://notch.tumblr.com/post/107611170/exhausted-but-happy)
+- [Minecraft Wiki - Java_Edition_pre-Classic_rd-20090515](https://minecraft.gamepedia.com/Java_Edition_pre-Classic_rd-20090515)
+- [The Word of Notch - The back of a house I built!](https://notch.tumblr.com/post/108350782/the-back-of-a-house-i-built-a-new-video-is)
+- [YouTube - Minecraft progress.](https://www.youtube.com/watch?v=59xZ5VFo0sA)
 
 ## Setup
 1. Clone the project
