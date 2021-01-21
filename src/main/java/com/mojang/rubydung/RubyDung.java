@@ -25,7 +25,7 @@ import static org.lwjgl.util.glu.GLU.gluPickMatrix;
 public class RubyDung implements Runnable {
 
     private static final boolean FULLSCREEN_MODE = true;
-    private final Timer timer = new Timer(60);
+    private final Timer timer = new Timer(20);
 
     private Level level;
     private LevelRenderer levelRenderer;

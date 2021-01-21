@@ -42,14 +42,14 @@ public class Player extends Entity {
             vertical++;
         }
         if ((Keyboard.isKeyDown(57) || Keyboard.isKeyDown(219)) && this.onGround) { // Space, Windows Key
-            this.motionY = 0.12F;
+            this.motionY = 0.5F;
         }
 
         // Add motion to the player using keyboard input
-        moveRelative(vertical, forward, this.onGround ? 0.02F : 0.005F);
+        moveRelative(vertical, forward, this.onGround ? 0.1F : 0.02F);
 
         // Apply gravity motion
-        this.motionY -= 0.005D;
+        this.motionY -= 0.08D;
 
         // Move the player using the motion
         move(this.motionX, this.motionY, this.motionZ);
@@ -61,8 +61,8 @@ public class Player extends Entity {
 
         // Decrease motion on ground
         if (this.onGround) {
-            this.motionX *= 0.8F;
-            this.motionZ *= 0.8F;
+            this.motionX *= 0.7F;
+            this.motionZ *= 0.7F;
         }
     }
 

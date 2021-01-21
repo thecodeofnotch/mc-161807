@@ -85,28 +85,28 @@ public class Zombie extends Entity {
         float forward = (float) Math.cos(this.rotation);
 
         // Randomly jump
-        if (this.onGround && Math.random() < 0.01) {
-            this.motionY = 0.12f;
+        if (this.onGround && Math.random() < 0.08F) {
+            this.motionY = 0.5F;
         }
 
         // Apply motion the zombie using the vertical and forward direction
-        moveRelative(vertical, forward, this.onGround ? 0.02f : 0.005f);
+        moveRelative(vertical, forward, this.onGround ? 0.1F : 0.02F);
 
         // Apply gravity
-        this.motionY -= (float) 0.005;
+        this.motionY -= 0.08F;
 
         // Move the entity using motion
         move(this.motionX, this.motionY, this.motionZ);
 
         // Decrease motion speed
-        this.motionX *= 0.91f;
-        this.motionY *= 0.98f;
-        this.motionZ *= 0.91f;
+        this.motionX *= 0.91F;
+        this.motionY *= 0.98F;
+        this.motionZ *= 0.91F;
 
         // Decrease motion speed on ground
         if (this.onGround) {
-            this.motionX *= 0.8f;
-            this.motionZ *= 0.8f;
+            this.motionX *= 0.7F;
+            this.motionZ *= 0.7F;
         }
     }
 
