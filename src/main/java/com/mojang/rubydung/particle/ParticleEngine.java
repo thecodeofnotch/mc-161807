@@ -1,5 +1,6 @@
 package com.mojang.rubydung.particle;
 
+import com.mojang.rubydung.Player;
 import com.mojang.rubydung.level.Level;
 
 public class ParticleEngine {
@@ -14,7 +15,7 @@ public class ParticleEngine {
 
     }
 
-    public void render() {
+    public void render(Player player, float partialTicks, int layer) {
 
     }
 }

@@ -3,6 +3,7 @@ package com.mojang.rubydung;
 import com.mojang.rubydung.character.Zombie;
 import com.mojang.rubydung.level.*;
 import com.mojang.rubydung.level.tile.Tile;
+import com.mojang.rubydung.particle.ParticleEngine;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -32,6 +33,7 @@ public class RubyDung implements Runnable {
     private Player player;
 
     private final List<Zombie> zombies = new ArrayList<>();
+    private ParticleEngine particleEngine;
 
     /**
      * Fog
@@ -118,6 +120,7 @@ public class RubyDung implements Runnable {
         this.level = new Level(256, 256, 64);
         this.levelRenderer = new LevelRenderer(this.level);
         this.player = new Player(this.level);
+        this.particleEngine = new ParticleEngine(this.level);
 
         // Grab mouse cursor
         Mouse.setGrabbed(true);
@@ -234,6 +237,9 @@ public class RubyDung implements Runnable {
 
         // Tick random tile in level
         this.level.onTick();
+
+        // Tick particles
+        this.particleEngine.tick();
 
         // Tick zombies
         Iterator<Zombie> iterator = this.zombies.iterator();
@@ -476,6 +482,9 @@ public class RubyDung implements Runnable {
             }
         }
 
+        // Render particles in sunlight
+        this.particleEngine.render(this.player, partialTicks, 0);
+
         // Setup shadow fog
         setupFog(1);
 
@@ -488,6 +497,9 @@ public class RubyDung implements Runnable {
                 zombie.render(partialTicks);
             }
         }
+
+        // Render particles in shadow
+        this.particleEngine.render(this.player, partialTicks, 1);
 
         // Finish rendering
         glDisable(GL_LIGHTING);
