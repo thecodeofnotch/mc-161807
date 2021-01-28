@@ -15,6 +15,8 @@ public abstract class Entity {
     public float xRotation, yRotation;
 
     public AABB boundingBox;
+    protected float boundingBoxWidth = 0.6F;
+    protected float boundingBoxHeight = 1.8F;
 
     protected boolean onGround;
     protected float heightOffset;
@@ -46,8 +48,8 @@ public abstract class Entity {
         this.z = z;
 
         // Entity size
-        float width = 0.3F;
-        float height = 0.9F;
+        float width = this.boundingBoxWidth / 2.0F;
+        float height = this.boundingBoxHeight / 2.0F;
 
         // Set the position of the bounding box
         this.boundingBox = new AABB(x - width, y - height,
@@ -71,6 +73,17 @@ public abstract class Entity {
      */
     public void remove() {
         this.removed = true;
+    }
+
+    /**
+     * Set the size of the bounding box
+     *
+     * @param width  Width of the bounding box
+     * @param height Height of the bounding box
+     */
+    protected void setSize(float width, float height) {
+        this.boundingBoxWidth = width;
+        this.boundingBoxHeight = height;
     }
 
     /**

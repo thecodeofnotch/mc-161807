@@ -302,15 +302,23 @@ public class Level {
      * @param y  Tile position y
      * @param z  Tile position z
      * @param id Type of tile
+     * @return Tile changed
      */
-    public void setTile(int x, int y, int z, int id) {
+    public boolean setTile(int x, int y, int z, int id) {
         // Check if position is out of level
         if (x < 0 || y < 0 || z < 0 || x >= this.width || y >= this.depth || z >= this.height) {
-            return;
+            return false;
         }
 
+        // Get index of this position
+        int index = (y * this.height + z) * this.width + x;
+
+        // Check if type changed
+        if (id == this.blocks[index])
+            return false;
+
         // Set tile
-        this.blocks[(y * this.height + z) * this.width + x] = (byte) id;
+        this.blocks[index] = (byte) id;
 
         // Update lightning
         this.calcLightDepths(x, z, 1, 1);
@@ -319,6 +327,8 @@ public class Level {
         for (LevelListener levelListener : this.levelListeners) {
             levelListener.tileChanged(x, y, z);
         }
+
+        return true;
     }
 
     /**

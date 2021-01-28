@@ -239,7 +239,7 @@ public class RubyDung implements Runnable {
         this.level.onTick();
 
         // Tick particles
-        this.particleEngine.tick();
+        this.particleEngine.onTick();
 
         // Tick zombies
         Iterator<Zombie> iterator = this.zombies.iterator();
@@ -431,8 +431,15 @@ public class RubyDung implements Runnable {
         while (Mouse.next()) {
             // Right click
             if (Mouse.getEventButton() == 1 && Mouse.getEventButtonState() && this.hitResult != null) {
+                Tile previousTile = Tile.tiles[this.level.getTile(this.hitResult.x, this.hitResult.y, this.hitResult.z)];
+
                 // Destroy the tile
-                this.level.setTile(this.hitResult.x, this.hitResult.y, this.hitResult.z, 0);
+                boolean tileChanged = this.level.setTile(this.hitResult.x, this.hitResult.y, this.hitResult.z, 0);
+
+                // Create particles for this tile
+                if (previousTile != null && tileChanged) {
+                    previousTile.onDestroy(this.level, this.hitResult.x, this.hitResult.y, this.hitResult.z, this.particleEngine);
+                }
             }
 
             // Left click
@@ -483,7 +490,7 @@ public class RubyDung implements Runnable {
         }
 
         // Render particles in sunlight
-        this.particleEngine.render(this.player, partialTicks, 0);
+        this.particleEngine.render(this.player, this.tessellator, partialTicks, 0);
 
         // Setup shadow fog
         setupFog(1);
@@ -499,7 +506,7 @@ public class RubyDung implements Runnable {
         }
 
         // Render particles in shadow
-        this.particleEngine.render(this.player, partialTicks, 1);
+        this.particleEngine.render(this.player, this.tessellator, partialTicks, 1);
 
         // Finish rendering
         glDisable(GL_LIGHTING);

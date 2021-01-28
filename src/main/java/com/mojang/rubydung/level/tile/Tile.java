@@ -2,6 +2,8 @@ package com.mojang.rubydung.level.tile;
 
 import com.mojang.rubydung.level.Level;
 import com.mojang.rubydung.level.Tessellator;
+import com.mojang.rubydung.particle.Particle;
+import com.mojang.rubydung.particle.ParticleEngine;
 
 import java.util.Random;
 
@@ -244,5 +246,38 @@ public class Tile {
      */
     public void onTick(Level level, int x, int y, int z, Random random) {
         // No implementation
+    }
+
+    /**
+     * Called when a tile gets destroyed by the player
+     *
+     * @param level          The current level
+     * @param x              Tile x location
+     * @param y              Tile y location
+     * @param z              Tile z location
+     * @param particleEngine ParticleEngine to create the particles
+     */
+    public void onDestroy(Level level, int x, int y, int z, ParticleEngine particleEngine) {
+        int spread = 4;
+
+        // Spread particles in a cube
+        for (int offsetX = 0; offsetX < spread; offsetX++) {
+            for (int offsetY = 0; offsetY < spread; offsetY++) {
+                for (int offsetZ = 0; offsetZ < spread; offsetZ++) {
+
+                    float targetX = x + (offsetX + 0.5F) / spread;
+                    float targetY = y + (offsetY + 0.5F) / spread;
+                    float targetZ = z + (offsetZ + 0.5F) / spread;
+
+                    float motionX = targetX - x - 0.5F;
+                    float motionY = targetY - y - 0.5F;
+                    float motionZ = targetZ - z - 0.5F;
+
+                    // Add particle to the engine
+                    Particle particle = new Particle(level, targetX, targetY, targetZ, motionX, motionY, motionZ, this.textureId);
+                    particleEngine.add(particle);
+                }
+            }
+        }
     }
 }
