@@ -4,6 +4,7 @@ import com.mojang.rubydung.level.Level;
 import com.mojang.rubydung.level.Tessellator;
 import com.mojang.rubydung.particle.Particle;
 import com.mojang.rubydung.particle.ParticleEngine;
+import com.mojang.rubydung.phys.AABB;
 
 import java.util.Random;
 
@@ -17,6 +18,7 @@ public class Tile {
     public static Tile dirt = new Tile(3, 2);
     public static Tile stoneBrick = new Tile(4, 16);
     public static Tile wood = new Tile(5, 4);
+    public static Tile bush = new Bush(6);
 
     public final int id;
     protected int textureId;
@@ -279,5 +281,47 @@ public class Tile {
                 }
             }
         }
+    }
+
+    /**
+     * Get bounding box of tile
+     *
+     * @param x Tile position x
+     * @param y Tile position y
+     * @param z Tile position z
+     * @return Bounding box of tile
+     */
+    public AABB getAABB(int x, int y, int z) {
+        return new AABB(x, y, z, x + 1, y + 1, z + 1);
+    }
+
+    /**
+     * Get bounding box of tile
+     *
+     * @param x Tile position x
+     * @param y Tile position y
+     * @param z Tile position z
+     * @return Bounding box of tile
+     */
+    public AABB getTileAABB(int x, int y, int z) {
+        return new AABB(x, y, z, x + 1, y + 1, z + 1);
+    }
+
+    /**
+     * Tile is blocking light of the sun
+     *
+     * @return Returns true if the tile can block the light of the sun
+     */
+    public boolean blocksLight() {
+        return true;
+    }
+
+    /**
+     * Tile is solid
+     *
+     * @return Returns true if the tile is a solid type
+     */
+    public boolean isSolid() {
+        return true;
     }
 }

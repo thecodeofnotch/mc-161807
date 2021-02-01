@@ -1,10 +1,11 @@
 package com.mojang.rubydung.level;
 
-import com.mojang.rubydung.Entity;
 import com.mojang.rubydung.HitResult;
 import com.mojang.rubydung.Player;
+import com.mojang.rubydung.Textures;
 import com.mojang.rubydung.level.tile.Tile;
 import com.mojang.rubydung.phys.AABB;
+import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,11 +91,11 @@ public class LevelRenderer implements LevelListener {
      * @param layer The render layer
      */
     public void render(int layer) {
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, Textures.loadTexture("/terrain.png", GL_NEAREST));
+
         // Get current camera frustum
         Frustum frustum = Frustum.getFrustum();
-
-        // Reset global chunk rebuild stats
-        Chunk.rebuiltThisFrame = 0;
 
         // For all chunks
         for (Chunk chunk : this.chunks) {
@@ -106,6 +107,8 @@ public class LevelRenderer implements LevelListener {
                 chunk.render(layer);
             }
         }
+
+        glDisable(GL_TEXTURE_2D);
     }
 
     /**
@@ -176,55 +179,80 @@ public class LevelRenderer implements LevelListener {
      *
      * @param player The player
      */
-    public void pick(Entity player) {
+    public void pick(Player player, Frustum frustum) {
         float radius = 3.0F;
         AABB boundingBox = player.boundingBox.grow(radius, radius, radius);
 
         int minX = (int) boundingBox.minX;
-        int maxX = (int) (boundingBox.maxX + 1.0f);
+        int maxX = (int) (boundingBox.maxX + 1.0F);
         int minY = (int) boundingBox.minY;
-        int maxY = (int) (boundingBox.maxY + 1.0f);
+        int maxY = (int) (boundingBox.maxY + 1.0F);
         int minZ = (int) boundingBox.minZ;
-        int maxZ = (int) (boundingBox.maxZ + 1.0f);
+        int maxZ = (int) (boundingBox.maxZ + 1.0F);
 
         glInitNames();
+
+        // Define type
+        glPushName(0); // Type 0
+
+        // Define name value x
+        glPushName(0);
+
         for (int x = minX; x < maxX; x++) {
-            // Name value x
-            glPushName(x);
+            // Set last pushed value to x
+            glLoadName(x);
+
+            // Define name value y
+            glPushName(0);
+
             for (int y = minY; y < maxY; y++) {
-                // Name value y
-                glPushName(y);
+                // Set last pushed value to y
+                glLoadName(y);
+
+                // Define name value z
+                glPushName(0);
+
                 for (int z = minZ; z < maxZ; z++) {
-                    // Name value z
-                    glPushName(z);
-
                     // Check for solid tile
-                    if (this.level.isSolidTile(x, y, z)) {
+                    Tile tile = Tile.tiles[this.level.getTile(x, y, z)];
+                    if (tile != null && frustum.isVisible(tile.getTileAABB(x, y, z))) {
 
-                        // Name value type
+                        // Set last pushed value to x
+                        glLoadName(z);
+
+                        // Define name value face id
                         glPushName(0);
 
                         // Render all faces
                         for (int face = 0; face < 6; face++) {
 
-                            // Name value face id
-                            glPushName(face);
+                            // Set last pushed value to face id
+                            glLoadName(face);
 
                             // Render selection face
                             this.tessellator.init();
-                            Tile.rock.renderFaceNoTexture(this.tessellator, x, y, z, face);
+                            tile.renderFaceNoTexture(this.tessellator, x, y, z, face);
                             this.tessellator.flush();
-
-                            glPopName();
                         }
+
+                        // Pop face id
                         glPopName();
                     }
-                    glPopName();
                 }
+
+                // Pop z
                 glPopName();
             }
+
+            // Pop y
             glPopName();
         }
+
+        // Pop x
+        glPopName();
+
+        // Pop type
+        glPopName();
     }
 
     /**
@@ -236,7 +264,7 @@ public class LevelRenderer implements LevelListener {
         // Setup blending and color
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_CURRENT_BIT);
-        glColor4f(1.0F, 1.0F, 1.0F, ((float)Math.sin(System.currentTimeMillis() / 100.0D) * 0.2F + 0.4F) * 0.5F);
+        glColor4f(1.0F, 1.0F, 1.0F, ((float) Math.sin(System.currentTimeMillis() / 100.0D) * 0.2F + 0.4F) * 0.5F);
 
         // Render face
         this.tessellator.init();

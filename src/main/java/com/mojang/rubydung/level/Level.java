@@ -240,7 +240,8 @@ public class Level {
      * @return Tile is solid
      */
     public boolean isSolidTile(int x, int y, int z) {
-        return isTile(x, y, z);
+        Tile tile = Tile.tiles[this.getTile(x, y, z)];
+        return tile != null && tile.isSolid();
     }
 
     /**
@@ -252,7 +253,8 @@ public class Level {
      * @return Tile blocks the light
      */
     public boolean isLightBlocker(final int x, final int y, final int z) {
-        return this.isSolidTile(x, y, z);
+        Tile tile = Tile.tiles[this.getTile(x, y, z)];
+        return tile != null && tile.blocksLight();
     }
 
     /**
@@ -285,8 +287,16 @@ public class Level {
         for (int x = minX; x < maxX; x++) {
             for (int y = minY; y < maxY; y++) {
                 for (int z = minZ; z < maxZ; z++) {
-                    if (isSolidTile(x, y, z)) {
-                        boundingBoxList.add(new AABB(x, y, z, x + 1, y + 1, z + 1));
+
+                    // Get tile this location
+                    Tile tile = Tile.tiles[this.getTile(x, y, z)];
+                    if (tile != null) {
+
+                        // Get bounding box of the the tile
+                        AABB aabb = tile.getAABB(x, y, z);
+                        if (aabb != null) {
+                            boundingBoxList.add(aabb);
+                        }
                     }
                 }
             }

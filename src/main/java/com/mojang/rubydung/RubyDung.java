@@ -107,14 +107,25 @@ public class RubyDung implements Runnable {
             this.height = Display.getDisplayMode().getHeight();
         }
 
-        // Setup rendering
+        // Setup texture and color
         glEnable(GL_TEXTURE_2D);
         glShadeModel(GL_SMOOTH);
         glClearColor(0.5F, 0.8F, 1.0F, 0.0F);
         glClearDepth(1.0);
+
+        // Setup depth
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glDepthFunc(GL_LEQUAL);
+
+        // Setup alpha
+        glEnable(GL_ALPHA_TEST);
+        glAlphaFunc(GL_GREATER, 0.5F);
+
+        // Setup camera
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
 
         // Create level and player (Has to be in main thread)
         this.level = new Level(256, 256, 64);
@@ -171,7 +182,7 @@ public class RubyDung implements Runnable {
 
                 // Call the tick to reach updates 20 per seconds
                 for (int i = 0; i < this.timer.ticks; ++i) {
-                    tick();
+                    onTick();
                 }
 
                 // Render the game
@@ -204,7 +215,7 @@ public class RubyDung implements Runnable {
     /**
      * Game tick, called exactly 20 times per second
      */
-    private void tick() {
+    private void onTick() {
         // Listen for keyboard inputs
         while (Keyboard.next()) {
             if (Keyboard.getEventKeyState()) {
@@ -226,6 +237,9 @@ public class RubyDung implements Runnable {
                 }
                 if (Keyboard.getEventKey() == 5) { // 4
                     this.selectedTileId = Tile.wood.id;
+                }
+                if (Keyboard.getEventKey() == 7) { // 6
+                    this.selectedTileId = Tile.bush.id;
                 }
 
                 // Spawn zombie
@@ -342,8 +356,8 @@ public class RubyDung implements Runnable {
         this.viewportBuffer.limit(16);
 
         // Set matrix and camera perspective
-        gluPickMatrix(x, y, 5.0f, 5.0f, this.viewportBuffer);
-        gluPerspective(70.0f, this.width / (float) this.height, 0.05F, 1000.0F);
+        gluPickMatrix(x, y, 5.0F, 5.0F, this.viewportBuffer);
+        gluPerspective(70.0F, this.width / (float) this.height, 0.05F, 1000.0F);
 
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
@@ -366,7 +380,7 @@ public class RubyDung implements Runnable {
         this.setupPickCamera(partialTicks, this.width / 2, this.height / 2);
 
         // Render all possible pick selection faces to the target
-        this.levelRenderer.pick(this.player);
+        this.levelRenderer.pick(this.player, Frustum.getFrustum());
 
         // Flip buffer
         this.selectBuffer.flip();
@@ -515,7 +529,9 @@ public class RubyDung implements Runnable {
 
         // Render the actual hit
         if (this.hitResult != null) {
+            glDisable(GL_ALPHA_TEST);
             this.levelRenderer.renderHit(this.hitResult);
+            glEnable(GL_ALPHA_TEST);
         }
 
         // Draw player HUD
@@ -545,7 +561,8 @@ public class RubyDung implements Runnable {
         glScalef(48.0F, 48.0F, 48.0F);
         glRotatef(30.0F, 1.0F, 0.0F, 0.0F);
         glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
-        glTranslatef(1.5F, -0.5F, -0.5F);
+        glTranslatef(-1.5F, 0.5F, -0.5F);
+        glScalef(-1.0F, -1.0F, 1.0F);
 
         // Setup tile rendering
         int id = Textures.loadTexture("/terrain.png", 9728);
@@ -566,18 +583,18 @@ public class RubyDung implements Runnable {
         int y = this.height / 2;
 
         // Cross hair color
-        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         // Render cross hair
         this.tessellator.init();
-        this.tessellator.vertex((float) (x + 1), (float) (y - 8), 0.0f);
-        this.tessellator.vertex((float) (x - 0), (float) (y - 8), 0.0f);
-        this.tessellator.vertex((float) (x - 0), (float) (y + 9), 0.0f);
-        this.tessellator.vertex((float) (x + 1), (float) (y + 9), 0.0f);
-        this.tessellator.vertex((float) (x + 9), (float) (y - 0), 0.0f);
-        this.tessellator.vertex((float) (x - 8), (float) (y - 0), 0.0f);
-        this.tessellator.vertex((float) (x - 8), (float) (y + 1), 0.0f);
-        this.tessellator.vertex((float) (x + 9), (float) (y + 1), 0.0f);
+        this.tessellator.vertex((float) (x + 1), (float) (y - 8), 0.0F);
+        this.tessellator.vertex((float) (x - 0), (float) (y - 8), 0.0F);
+        this.tessellator.vertex((float) (x - 0), (float) (y + 9), 0.0F);
+        this.tessellator.vertex((float) (x + 1), (float) (y + 9), 0.0F);
+        this.tessellator.vertex((float) (x + 9), (float) (y - 0), 0.0F);
+        this.tessellator.vertex((float) (x - 8), (float) (y - 0), 0.0F);
+        this.tessellator.vertex((float) (x - 8), (float) (y + 1), 0.0F);
+        this.tessellator.vertex((float) (x + 9), (float) (y + 1), 0.0F);
         this.tessellator.flush();
     }
 

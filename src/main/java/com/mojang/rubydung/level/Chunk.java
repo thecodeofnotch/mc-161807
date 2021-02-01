@@ -1,7 +1,6 @@
 package com.mojang.rubydung.level;
 
 import com.mojang.rubydung.Player;
-import com.mojang.rubydung.Textures;
 import com.mojang.rubydung.level.tile.Tile;
 import com.mojang.rubydung.phys.AABB;
 
@@ -15,7 +14,6 @@ public class Chunk {
     /**
      * Global rebuild statistic
      */
-    public static int rebuiltThisFrame;
     public static int updates;
     public long dirtiedTime;
 
@@ -83,14 +81,8 @@ public class Chunk {
      * @param layer The layer of the chunk (For shadows)
      */
     public void rebuild(int layer) {
-        if (rebuiltThisFrame == 2) {
-            // Rebuild limit reached for this frame
-            return;
-        }
-
         // Update global stats
         updates++;
-        rebuiltThisFrame++;
 
         // Mark chunk as no longer dirty
         this.dirty = false;
@@ -101,8 +93,6 @@ public class Chunk {
 
         // Setup tile rendering
         glNewList(this.lists + layer, GL_COMPILE);
-        glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, Textures.loadTexture("/terrain.png", GL_NEAREST));
         TESSELLATOR.init();
 
         // For each tile in this chunk
@@ -125,7 +115,6 @@ public class Chunk {
 
         // Finish tile rendering
         TESSELLATOR.flush();
-        glDisable(GL_TEXTURE_2D);
         glEndList();
 
         // Update chunk update counter
