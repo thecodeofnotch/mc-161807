@@ -61,9 +61,9 @@ public class Level {
         int[] rockMap = new PerlinNoiseFilter(1).read(this.width, this.height);
 
         // Generate tiles
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < depth; ++y) {
-                for (int z = 0; z < height; ++z) {
+        for (int x = 0; x < this.width; ++x) {
+            for (int y = 0; y < this.depth; ++y) {
+                for (int z = 0; z < this.height; ++z) {
                     // Extract values from height map
                     int firstHeightValue = firstHeightMap[x + z * this.width];
                     int secondHeightValue = secondHeightMap[x + z * this.width];

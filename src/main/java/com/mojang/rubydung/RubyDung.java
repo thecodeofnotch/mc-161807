@@ -10,7 +10,6 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
 
 import javax.swing.*;
 import java.nio.FloatBuffer;
@@ -318,23 +317,6 @@ public class RubyDung implements Runnable {
     }
 
     /**
-     * Setup the HUD camera
-     */
-    private void setupOrthoCamera() {
-        GL11.glMatrixMode(GL_PROJECTION);
-        GL11.glLoadIdentity();
-
-        // Set camera perspective
-        GL11.glOrtho(0.0, this.width, this.height, 0.0, 100.0F, 300.0F);
-
-        GL11.glMatrixMode(GL_MODELVIEW);
-        GL11.glLoadIdentity();
-
-        // Move camera to Z level -200
-        GL11.glTranslatef(0.0f, 0.0f, -200.0f);
-    }
-
-    /**
      * Setup tile picking camera
      *
      * @param partialTicks Overflow ticks to calculate smooth a movement
@@ -551,14 +533,27 @@ public class RubyDung implements Runnable {
         glClear(GL_DEPTH_BUFFER_BIT);
 
         // Setup HUD camera
-        setupOrthoCamera();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+
+        int screenWidth = this.width * 240 / this.height;
+        int screenHeight = this.height * 240 / this.height;
+
+        // Set camera perspective
+        glOrtho(0.0, screenWidth, screenHeight, 0.0, 100.0F, 300.0F);
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        // Move camera to Z level -200
+        glTranslatef(0.0f, 0.0f, -200.0f);
 
         // Start tile display
         glPushMatrix();
 
         // Transform tile position to the top right corner
-        glTranslated(this.width - 48, 48.0F, 0.0F);
-        glScalef(48.0F, 48.0F, 48.0F);
+        glTranslated(screenWidth - 16, 16.0F, 0.0F);
+        glScalef(16.0F, 16.0F, 16.0F);
         glRotatef(30.0F, 1.0F, 0.0F, 0.0F);
         glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
         glTranslatef(-1.5F, 0.5F, -0.5F);
@@ -579,22 +574,22 @@ public class RubyDung implements Runnable {
         glPopMatrix();
 
         // Cross hair position
-        int x = this.width / 2;
-        int y = this.height / 2;
+        int x = screenWidth / 2;
+        int y = screenHeight / 2;
 
         // Cross hair color
         glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 
         // Render cross hair
         this.tessellator.init();
-        this.tessellator.vertex((float) (x + 1), (float) (y - 8), 0.0F);
-        this.tessellator.vertex((float) (x - 0), (float) (y - 8), 0.0F);
-        this.tessellator.vertex((float) (x - 0), (float) (y + 9), 0.0F);
-        this.tessellator.vertex((float) (x + 1), (float) (y + 9), 0.0F);
-        this.tessellator.vertex((float) (x + 9), (float) (y - 0), 0.0F);
-        this.tessellator.vertex((float) (x - 8), (float) (y - 0), 0.0F);
-        this.tessellator.vertex((float) (x - 8), (float) (y + 1), 0.0F);
-        this.tessellator.vertex((float) (x + 9), (float) (y + 1), 0.0F);
+        this.tessellator.vertex((float) (x + 1), (float) (y - 4), 0.0F);
+        this.tessellator.vertex((float) (x - 0), (float) (y - 4), 0.0F);
+        this.tessellator.vertex((float) (x - 0), (float) (y + 5), 0.0F);
+        this.tessellator.vertex((float) (x + 1), (float) (y + 5), 0.0F);
+        this.tessellator.vertex((float) (x + 5), (float) (y - 0), 0.0F);
+        this.tessellator.vertex((float) (x - 4), (float) (y - 0), 0.0F);
+        this.tessellator.vertex((float) (x - 4), (float) (y + 1), 0.0F);
+        this.tessellator.vertex((float) (x + 5), (float) (y + 1), 0.0F);
         this.tessellator.flush();
     }
 

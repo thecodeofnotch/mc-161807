@@ -91,8 +91,8 @@ public class PerlinNoiseFilter {
         int[] result = new int[width * height];
 
         // Generate output values
-        for (int y = 0; y < height; ++y) {
-            for (int x = 0; x < width; ++x) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 result[x + y * width] = table[x % width + y % height * width] / 512 + 128;
             }
         }

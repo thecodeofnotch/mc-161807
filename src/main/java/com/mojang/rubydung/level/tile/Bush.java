@@ -37,28 +37,32 @@ public class Bush extends Tile {
             return;
         }
 
+        // Texture id
         int textureId = this.getTexture(this.textureId);
 
+        // Texture mapping points
         float minU = textureId % 16 / 16.0F;
         float minV = minU + 999 / 16000.0F;
         float maxU = (float) (textureId / 16) / 16.0F;
         float maxV = maxU + 999 / 16000.0F;
 
-        int rots = 2;
+        // Color
+        tessellator.color(1.0F, 1.0F, 1.0F);
 
-        tessellator.color(1.0f, 1.0f, 1.0f);
+        // Two sides
+        for (int i = 0; i < 2; i++) {
 
-        for (int r = 0; r < rots; r++) {
+            // Rotation
+            float sin = (float) Math.sin(i * Math.PI / 2 + Math.PI / 4) / 2;
+            float cos = (float) Math.cos(i * Math.PI / 2 + Math.PI / 4) / 2;
 
-            float xa = (float) (Math.sin(r * Math.PI / rots + 0.7853981633974483) / 2.0D);
-            float za = (float) (Math.cos(r * Math.PI / rots + 0.7853981633974483) / 2.0D);
-
-            float minX = x + 0.5F - xa;
-            float maxX = x + 0.5F + xa;
+            // Vertex points
+            float minX = x + 0.5F - sin;
+            float maxX = x + 0.5F + sin;
             float minY = y + 0.0F;
             float maxY = y + 1.0F;
-            float minZ = z + 0.5F - za;
-            float maxZ = z + 0.5F + za;
+            float minZ = z + 0.5F - cos;
+            float maxZ = z + 0.5F + cos;
 
             // Render bush side
             tessellator.vertexUV(minX, maxY, minZ, minV, maxU);
