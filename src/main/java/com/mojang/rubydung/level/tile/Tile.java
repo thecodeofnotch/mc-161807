@@ -284,24 +284,24 @@ public class Tile {
     }
 
     /**
-     * Get bounding box of tile
+     * Get bounding box of the entire cube
      *
      * @param x Tile position x
      * @param y Tile position y
      * @param z Tile position z
-     * @return Bounding box of tile
+     * @return Bounding box of the entire cube
      */
     public AABB getAABB(int x, int y, int z) {
         return new AABB(x, y, z, x + 1, y + 1, z + 1);
     }
 
     /**
-     * Get bounding box of tile
+     * Get bounding box of the actual model
      *
      * @param x Tile position x
      * @param y Tile position y
      * @param z Tile position z
-     * @return Bounding box of tile
+     * @return Actual bounding box of the tile
      */
     public AABB getTileAABB(int x, int y, int z) {
         return new AABB(x, y, z, x + 1, y + 1, z + 1);

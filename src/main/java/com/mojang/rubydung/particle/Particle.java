@@ -11,6 +11,11 @@ public class Particle extends Entity {
     private final float textureUOffset;
     private final float textureVOffset;
 
+    private final float size;
+    private final int lifetime;
+
+    private int age = 0;
+
     /**
      * Particle entity
      *
@@ -53,15 +58,17 @@ public class Particle extends Entity {
         // Create random texture offset
         this.textureUOffset = (float) Math.random() * 3.0F;
         this.textureVOffset = (float) Math.random() * 3.0F;
-    }
 
+        this.size = (float) (Math.random() * 0.5D + 0.5D);
+        this.lifetime = (int) (4.0D / (Math.random() * 0.9D + 0.1D));
+    }
 
     @Override
     public void onTick() {
         super.onTick();
 
         // Kill randomly
-        if (Math.random() < 0.1F) {
+        if (this.age++ >= this.lifetime) {
             remove();
         }
 
@@ -91,8 +98,10 @@ public class Particle extends Entity {
      * @param cameraX      Camera rotation X
      * @param cameraY      Camera rotation Y
      * @param cameraZ      Camera rotation Z
+     * @param cameraXWithY Additional camera rotation x including the y rotation
+     * @param cameraZWithY Additional camera rotation z including the y rotation
      */
-    public void render(Tessellator tessellator, float partialTicks, float cameraX, float cameraY, float cameraZ) {
+    public void render(Tessellator tessellator, float partialTicks, float cameraX, float cameraY, float cameraZ, float cameraXWithY, float cameraZWithY) {
         // UV mapping points
         float minU = (this.textureId % 16 + this.textureUOffset / 4.0F) / 16.0F;
         float maxU = minU + 999.0F / 64000.0F;
@@ -105,11 +114,12 @@ public class Particle extends Entity {
         float z = (float) (this.prevZ + (this.z - this.prevZ) * partialTicks);
 
         // Size of the particle
-        float size = 0.1F;
+        float size = this.size * 0.1F;
 
-        tessellator.vertexUV(x - cameraX * size, y - cameraY * size, z - cameraZ * size, minU, maxV);
-        tessellator.vertexUV(x - cameraX * size, y + cameraY * size, z - cameraZ * size, minU, minV);
-        tessellator.vertexUV(x + cameraX * size, y + cameraY * size, z + cameraZ * size, maxU, minV);
-        tessellator.vertexUV(x + cameraX * size, y - cameraY * size, z + cameraZ * size, maxU, maxV);
+        // Render vertices
+        tessellator.vertexUV(x - cameraX * size - cameraXWithY * size, y - cameraY * size, z - cameraZ * size - cameraZWithY * size, minU, maxV);
+        tessellator.vertexUV(x - cameraX * size + cameraXWithY * size, y + cameraY * size, z - cameraZ * size + cameraZWithY * size, minU, minV);
+        tessellator.vertexUV(x + cameraX * size + cameraXWithY * size, y + cameraY * size, z + cameraZ * size + cameraZWithY * size, maxU, minV);
+        tessellator.vertexUV(x + cameraX * size - cameraXWithY * size, y - cameraY * size, z + cameraZ * size - cameraZWithY * size, maxU, maxV);
     }
 }

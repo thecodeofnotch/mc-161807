@@ -64,8 +64,13 @@ public class ParticleEngine {
         glBindTexture(GL_TEXTURE_2D, id);
 
         // Get camera angel
-        float cameraX = (float) Math.cos(Math.toRadians(player.yRotation));
-        float cameraZ = (float) Math.sin(Math.toRadians(player.yRotation));
+        double cameraX = -Math.cos(Math.toRadians(player.yRotation));
+        double cameraY = Math.cos(Math.toRadians(player.xRotation));
+        double cameraZ = -Math.sin(Math.toRadians(player.yRotation));
+
+        // Get additional camera rotation
+        double cameraXWithY = -cameraZ * Math.sin(Math.toRadians(player.xRotation));
+        double cameraZWithY = cameraX * Math.sin(Math.toRadians(player.xRotation));
 
         // Start rendering
         glColor4f(0.8F, 0.8F, 0.8F, 1.0F);
@@ -74,7 +79,7 @@ public class ParticleEngine {
         // Render all particles in correct layer
         for (Particle particle : this.particles) {
             if (particle.isLit() ^ layer == 1) {
-                particle.render(tessellator, partialTicks, -cameraX, 1.0F, -cameraZ);
+                particle.render(tessellator, partialTicks, (float) cameraX, (float) cameraY, (float) cameraZ, (float) cameraXWithY, (float) cameraZWithY);
             }
         }
 
