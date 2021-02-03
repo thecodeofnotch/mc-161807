@@ -21,7 +21,7 @@ There is no existing backup.
 We can assume that all necessary changes have been made in this update for the first release.
 
 ## References
-- [Minecraft Wiki - Java_Edition_pre-Classic_mc-161616](https://minecraft.gamepedia.com/Java_Edition_pre-Classic_mc-161616)
+- [Minecraft Wiki - Java_Edition_pre-Classic_mc-161607](https://minecraft.gamepedia.com/Java_Edition_pre-Classic_mc-161607)
 - [IRC logs](https://archive.org/download/Minecraft_IRC_Logs_2009/history/files/May-15-to-June-03-2009/2009-05-16.075419-0400EDT.txt.~1~)  to recreate the unreleased features:
     - ``[12:07:06] notch: minecraft alpha is available. I need someone on windows, someone on mac and someone on linux!``
 
