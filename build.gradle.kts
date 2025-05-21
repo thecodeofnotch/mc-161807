@@ -23,7 +23,7 @@ dependencies {
 
 task("run", JavaExec::class) {
     jvmArgs = listOf("-Dorg.lwjgl.librarypath=${project.projectDir.toPath()}\\run\\natives")
-    main = "com.mojang.minecraft.Minecraft"
+    mainClass.set("com.mojang.minecraft.Minecraft");
     classpath = sourceSets["main"].runtimeClasspath
     workingDir("${project.projectDir.toPath()}\\run")
     dependsOn("extractNatives")
@@ -33,4 +33,6 @@ task("extractNatives", Copy::class) {
     dependsOn(natives)
     from(natives.map { zipTree(it) })
     into("${project.projectDir.toPath()}\\run\\natives")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
 }
